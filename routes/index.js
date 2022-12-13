@@ -5,13 +5,15 @@ const DataEachYear = require("./DataEacahYear")
 const Person = require("./Person");
 const Video = require("./Video")
 const Mission = require("./Mission")
-
+const Service = require("./Service")
 
 router.use("/admin", opm);
 router.use("/admin", DataEachYear);
 router.use("/admin", Person);
 router.use("/admin", Video);
 router.use("/admin", Mission);
+router.use("/admin", Service);
+
 
 
 
