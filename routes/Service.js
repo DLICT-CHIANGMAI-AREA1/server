@@ -6,11 +6,11 @@ const upload = require('../middleware/upload')
 router.get('/api/FindService',FindService)
 router.get('/api/FindServiceByType/:id',FindServiceByType)
 
-router.post('/api/CreateService',upload.single('image'),CreateService)
+router.post('/api/CreateService',CreateService)
 
 router.delete('/api/DeleteService/:id',DeleteService)
 
-router.put('/api/EditService/:id',upload.single('image'),EditService)
+router.put('/api/EditService/:id',EditService)
 
 router.put('/api/ServiceTitle/:id',EditTiServiceTitleFind)
 router.post('/api/ServiceTitle',CreateServiceTitle)

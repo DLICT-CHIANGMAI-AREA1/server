@@ -18,11 +18,11 @@ module.exports = {
     },
     CreateService: async (req, res, next) => {
         try {
-            const { name, url, type } = req.body;
+            const { name, url, type ,image } = req.body;
             const data = {
                 name: name,
                 url: url,
-                image: req.file.path,
+                image: image,
                 type: type,
             };
             let service = new Service(data);
