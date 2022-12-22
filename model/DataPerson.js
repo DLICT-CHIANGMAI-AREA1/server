@@ -1,6 +1,5 @@
 const mongoose = require("../config/database");
 const Schema = mongoose.Schema;
-const person = require("../model/JSON/person.json");
 
 const Person = new Schema({
     First_name: String,
@@ -10,16 +9,10 @@ const Person = new Schema({
     Department: String,
     Email: String,
     Phone: String,
-    Operating_Manual: String,
+    Operating_Manual: Object,
     Profile: String
 
 });
 
 const DataPerson = mongoose.model(" Person", Person);
-
-const SaveDataPerson= async () => {
-    if (0 == (await DataPerson.find())) await DataPerson.insertMany(person);
-};
-SaveDataPerson();
-
 module.exports = DataPerson;

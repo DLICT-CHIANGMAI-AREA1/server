@@ -10,7 +10,7 @@ const Data_Each_Year = new Schema({
             date: [
                 {
                     name_date: String,
-                    data: [{ name: String, url: String, csv_url: String, image: String }],
+                    data: [{ name: String, url: String, csv_url: String }],
                 },
             ],
         },

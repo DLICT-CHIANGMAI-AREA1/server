@@ -37,7 +37,7 @@ module.exports = {
     UpdateData: async (req, res, next) => {
         try {
             const { param, param2, param3 } = req.params;
-        
+
             return res.status(200).json(
                 await DataEachYear.updateOne(
                     { _id: param, "data.date._id": param3 },
@@ -46,7 +46,6 @@ module.exports = {
                             "data.$[].date.$[].data.$[elem].name": req.body.name,
                             "data.$[].date.$[].data.$[elem].url": req.body.url,
                             "data.$[].date.$[].data.$[elem].csv_url": req.body.csv_url,
-                            "data.$[].date.$[].data.$[elem].image": req.file.path,
                         },
                     },
                     {
@@ -200,7 +199,6 @@ module.exports = {
                                     name: name,
                                     url: url,
                                     csv_url: csv_url,
-                                    image: req.file.path,
                                 },
                             },
                         },

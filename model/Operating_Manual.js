@@ -3,8 +3,10 @@ const Schema = mongoose.Schema
 
 
 const operating_manual = new Schema({
-    filename:String,
-    file:String,
+    url:String,
+    size:Number,
+    type:String,
+    filename:String
 })
 
 const OP = mongoose.model("operating_manuals", operating_manual)
