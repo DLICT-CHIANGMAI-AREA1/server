@@ -49,7 +49,7 @@ module.exports = {
             const data = {
                 name: name,
                 url: url,
-                image: req.file.path,
+                image: image,
             };
             let update = await Service.findByIdAndUpdate(id, data, { new: true });
             return res.status(200).json(update);
