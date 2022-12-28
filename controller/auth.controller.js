@@ -1,6 +1,7 @@
-const Admin_User = require("../model/AdminUser");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
+const Admin_User = require("../model/AdminUser");
+
 
 module.exports = {
     register: async (req, res, next) => {
