@@ -7,6 +7,7 @@ const Video = require("./Video")
 const Mission = require("./Mission")
 const Service = require("./Service")
 const News = require("./News")
+const auth = require("./auth")
 
 router.use("/admin", opm);
 router.use("/admin", DataEachYear);
@@ -15,6 +16,7 @@ router.use("/admin", Video);
 router.use("/admin", Mission);
 router.use("/admin", Service);
 router.use("/admin", News);
+router.use("/admin", auth);
 
 
 
