@@ -4,7 +4,7 @@ const { register, login } = require("../controller/auth.controller");
  * @swagger
  * components:
  *   schemas:
- *     ยืนยันตัวตน:
+ *     Authentication:
  *       type: object
  *       required:
  *         - username
@@ -23,7 +23,7 @@ const { register, login } = require("../controller/auth.controller");
 /**
  * @swagger
  * tags:
- *   name: ยืนยันตัวตน
+ *   name: Authentication
  */
 
 /**
@@ -31,20 +31,20 @@ const { register, login } = require("../controller/auth.controller");
  * /admin/api/register:
  *   post:
  *     summary: Create a new admin
- *     tags: [ยืนยันตัวตน]
+ *     tags: [Authentication]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ยืนยันตัวตน'
+ *             $ref: '#/components/schemas/Authentication'
  *     responses:
  *       200:
  *         description:   successfully created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ยืนยันตัวตน'
+ *               $ref: '#/components/schemas/Authentication'
  *       500:
  *         description: Some server error
  */
@@ -57,20 +57,20 @@ router.post("/api/login", login);
  * /admin/api/login:
  *   post:
  *     summary: Create a new admin
- *     tags: [ยืนยันตัวตน]
+ *     tags: [Authentication]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ยืนยันตัวตน'
+ *             $ref: '#/components/schemas/Authentication'
  *     responses:
  *       200:
  *         description:  successfully created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ยืนยันตัวตน'
+ *               $ref: '#/components/schemas/Authentication'
  *       500:
  *         description: Some server error
  */
