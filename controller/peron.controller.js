@@ -29,7 +29,7 @@ module.exports = {
         try {
            
             const { id } = req.params;
-            const { First_name, Last_name, Gender, JobTitle, Department, Email, Phone, Profile } = req.body;
+            const { First_name, Last_name, Gender, JobTitle, Department, Email, Phone, Profile , Position } = req.body;
             fetch("https://www.filestackapi.com/api/store/S3?key=AUvhS7551QwCvuwJ8LPpjz", {
                 method: "POST",
                 body: req.files.Operating_Manual.data,
@@ -46,6 +46,7 @@ module.exports = {
                         Phone: Phone,
                         Operating_Manual: r,
                         Profile: Profile,
+                        Positions:Position
                     };
                     let update = await Person.findByIdAndUpdate(id, data, { new: true });
                     return res.status(200).json(update);
@@ -56,7 +57,7 @@ module.exports = {
     },
     CreatePerson: async (req, res, next) => {
         try {
-            const { First_name, Last_name, Gender, JobTitle, Department, Email, Phone, Profile } = req.body;
+            const { First_name, Last_name, Gender, JobTitle, Department, Email, Phone, Profile ,Position} = req.body;
             fetch("https://www.filestackapi.com/api/store/S3?key=AUvhS7551QwCvuwJ8LPpjz", {
                 method: "POST",
                 body: req.files.Operating_Manual.data,
@@ -73,6 +74,7 @@ module.exports = {
                         Phone: Phone,
                         Operating_Manual: r,
                         Profile: Profile,
+                        Positions:Position
                     };
                     let person = new Person(data);
                     await person.save(async (err, data) => {

@@ -10,7 +10,8 @@ const Person = new Schema({
     Email: String,
     Phone: String,
     Operating_Manual: Object,
-    Profile: String
+    Profile: String,
+    Positions: String
 
 });
 
