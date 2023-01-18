@@ -174,7 +174,7 @@ module.exports = {
                     await DataEachYear.updateOne(
                         { _id: param, "data._id": param2 }, // สร้าง เวลา
                         {
-                            $push: { "data.$.date": { name_date: req.body.name_date, data: [] } },
+                            $push: { "data.$.date": { name_date: req.body.name_date,icon:req.body.icon, data: [] } },
                         }
                     )
                 );
