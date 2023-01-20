@@ -12,10 +12,12 @@ const {
     UpdateData,
     DeleteData,
     DeleteDataRecordDate,
+    FindDataInGroupOfData
 } = require("../controller/DataEachYear.controller");
 
 router.get("/api/FindDataEachYear", FindDataEachYear);
 router.get("/api/FindDataEachYearById/:id", FindDataEachYearById);
+router.get("/api/FindDataInGroupOfData/:param1/:param2", FindDataInGroupOfData);
 router.get("/api/FindDataEachYearByDate/:param1/:param2", FindDataEachYearByDate);
 
 router.post("/api/CreateDataYear", CreateDataYear);

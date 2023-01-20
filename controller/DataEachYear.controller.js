@@ -32,32 +32,49 @@ module.exports = {
             return res.status(500).json(error.message);
         }
     },
+    FindDataInGroupOfData: async (req, res, next) => {
+        try {
+            const { param1, param2 } = req.params;
+            const find = await DataEachYear.find({ _id: param1 });
+            const filteredData = find[0].data.filter((item) => item._id.toString() === param2);
+            return res.status(200).json(filteredData);
+        } catch (error) {
+            return res.status(500).json(error.message);
+        }
+    },
 
     /*-----------------------Update----------------------------*/
     UpdateData: async (req, res, next) => {
         try {
             const { param, param2, param3 } = req.params;
-
-            return res.status(200).json(
-                await DataEachYear.updateOne(
-                    { _id: param, "data.date._id": param3 },
-                    {
-                        $set: {
-                            "data.$[].date.$[].data.$[elem].name": req.body.name,
-                            "data.$[].date.$[].data.$[elem].url": req.body.url,
-                            "data.$[].date.$[].data.$[elem].csv_url": req.body.csv_url,
-                        },
-                    },
-                    {
-                        arrayFilters: [
+            fetch("https://www.filestackapi.com/api/store/S3?key=AUvhS7551QwCvuwJ8LPpjz", {
+                method: "POST",
+                body: req.files.pdf.data,
+            })
+                .then((r) => r.json())
+                .then(async (r) => {
+                   return res.status(200).json(
+                        await DataEachYear.updateOne(
+                            { _id: param, "data.date._id": param3 },
                             {
-                                "elem._id": param2,
+                                $set: {
+                                    "data.$[].date.$[].data.$[elem].name": req.body.name,
+                                    "data.$[].date.$[].data.$[elem].url": req.body.url,
+                                    "data.$[].date.$[].data.$[elem].csv_url": req.body.csv_url,
+                                    "data.$[].date.$[].data.$[elem].pdf": r,
+                                },
                             },
-                        ],
-                        multi: true,
-                    }
-                )
-            );
+                            {
+                                arrayFilters: [
+                                    {
+                                        "elem._id": param2,
+                                    },
+                                ],
+                                multi: true,
+                            }
+                        )
+                    );
+                });
         } catch (error) {
             return res.status(500).json(error.message);
         }
@@ -174,7 +191,7 @@ module.exports = {
                     await DataEachYear.updateOne(
                         { _id: param, "data._id": param2 }, // สร้าง เวลา
                         {
-                            $push: { "data.$.date": { name_date: req.body.name_date,icon:req.body.icon, data: [] } },
+                            $push: { "data.$.date": { name_date: req.body.name_date, icon: req.body.icon, data: [] } },
                         }
                     )
                 );
@@ -190,28 +207,36 @@ module.exports = {
             try {
                 const { param, param2, param3 } = req.params;
                 const { name, url, csv_url } = req.body;
-                return res.status(200).json(
-                    await DataEachYear.updateOne(
-                        { _id: param, "data.date._id": param3 },
-                        {
-                            $push: {
-                                "data.$.date.$[elem].data": {
-                                    name: name,
-                                    url: url,
-                                    csv_url: csv_url,
-                                },
-                            },
-                        },
-                        {
-                            arrayFilters: [
+                fetch("https://www.filestackapi.com/api/store/S3?key=AUvhS7551QwCvuwJ8LPpjz", {
+                    method: "POST",
+                    body: req.files.pdf.data,
+                })
+                    .then((r) => r.json())
+                    .then(async (r) => {
+                        return res.status(200).json(
+                            await DataEachYear.updateOne(
+                                { _id: param, "data.date._id": param3 },
                                 {
-                                    "elem._id": param3,
+                                    $push: {
+                                        "data.$.date.$[elem].data": {
+                                            name: name,
+                                            url: url,
+                                            csv_url: csv_url,
+                                            pdf: r,
+                                        },
+                                    },
                                 },
-                            ],
-                            multi: true,
-                        }
-                    )
-                );
+                                {
+                                    arrayFilters: [
+                                        {
+                                            "elem._id": param3,
+                                        },
+                                    ],
+                                    multi: true,
+                                }
+                            )
+                        );
+                    });
             } catch (error) {
                 return res.status(500).json(error.message);
             }
