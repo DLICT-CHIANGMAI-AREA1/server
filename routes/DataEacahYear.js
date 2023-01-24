@@ -1,4 +1,8 @@
 const router = require("express").Router();
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
+const admin = require("firebase-admin");
+
 const {
     FindDataEachYear,
     FindDataEachYearById,
@@ -12,8 +16,17 @@ const {
     UpdateData,
     DeleteData,
     DeleteDataRecordDate,
-    FindDataInGroupOfData
+    FindDataInGroupOfData,
 } = require("../controller/DataEachYear.controller");
+
+const serviceAccount = require("../config/chiangmaiarea1-server-key.json");
+const BUCKET = "chiangmaiarea1-server.appspot.com";
+const FirebaseApp = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: BUCKET,
+});
+const storage = FirebaseApp.storage();
+const bucket = storage.bucket();
 
 router.get("/api/FindDataEachYear", FindDataEachYear);
 router.get("/api/FindDataEachYearById/:id", FindDataEachYearById);
@@ -23,7 +36,33 @@ router.get("/api/FindDataEachYearByDate/:param1/:param2", FindDataEachYearByDate
 router.post("/api/CreateDataYear", CreateDataYear);
 router.post("/api/CreateDataName/:param", CreateDataName);
 router.post("/api/CreateDate/:param/:param2", CreateDate);
-router.post("/api/CreateData/:param/:param2/:param3", CreateData);
+router.post(
+    "/api/CreateData/:param/:param2/:param3",
+    upload.single("pdf"),
+    (req, res, next) => {
+        const folder = "file";
+        const fileName = `${folder}/${Date.now()}`;
+        const fileUpload = bucket.file(fileName);
+        const blobStream = fileUpload.createWriteStream({
+            metadata: {
+                contentType: req.file.mimetype,
+            },
+        });
+
+        blobStream.on("error", (err) => {
+            res.status(405).json(err);
+        });
+
+        blobStream.on("finish", async () => {
+            await fileUpload.makePublic();
+            req.file.firebaseUrl = `https://storage.googleapis.com/${BUCKET}/${fileName}`;
+            next();
+            // สร้าง path
+        });
+        blobStream.end(req.file.buffer);
+    },
+    CreateData
+);
 
 router.put("/api/UpdateData/:param/:param2/:param3", UpdateData);
 
@@ -55,7 +94,7 @@ router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);
  *          _id: 63a4206e491b9c921b3c2cf7
  *          name_year: ข้อมูลปี 2566
  *          data: array
- *   
+ *
  *
  */
 /**
@@ -80,7 +119,6 @@ router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);
  *       500:
  *         description: Some server error
  */
-
 
 /**
  * @swagger
@@ -124,7 +162,6 @@ router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);
  *         description: Some server error
  */
 
-
 /**
  * @swagger
  * /admin/api/CreateDataYear:
@@ -147,7 +184,6 @@ router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);
  *       500:
  *         description: Some server error
  */
-
 
 /**
  * @swagger
@@ -232,7 +268,6 @@ router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);
  *       500:
  *         description: Some server error
  */
-
 
 /**
  * @swagger

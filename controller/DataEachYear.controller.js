@@ -47,34 +47,58 @@ module.exports = {
     UpdateData: async (req, res, next) => {
         try {
             const { param, param2, param3 } = req.params;
-            fetch("https://www.filestackapi.com/api/store/S3?key=AUvhS7551QwCvuwJ8LPpjz", {
-                method: "POST",
-                body: req.files.pdf.data,
-            })
-                .then((r) => r.json())
-                .then(async (r) => {
-                   return res.status(200).json(
-                        await DataEachYear.updateOne(
-                            { _id: param, "data.date._id": param3 },
-                            {
-                                $set: {
-                                    "data.$[].date.$[].data.$[elem].name": req.body.name,
-                                    "data.$[].date.$[].data.$[elem].url": req.body.url,
-                                    "data.$[].date.$[].data.$[elem].csv_url": req.body.csv_url,
-                                    "data.$[].date.$[].data.$[elem].pdf": r,
-                                },
-                            },
-                            {
-                                arrayFilters: [
-                                    {
-                                        "elem._id": param2,
+            if (Object.keys(req.body).length <= 3) {
+                fetch("https://www.filestackapi.com/api/store/S3?key=AUvhS7551QwCvuwJ8LPpjz", {
+                    method: "POST",
+                    body: req.files.pdf.data,
+                })
+                    .then((r) => r.json())
+                    .then(async (r) => {
+                        return res.status(200).json(
+                            await DataEachYear.updateOne(
+                                { _id: param, "data.date._id": param3 },
+                                {
+                                    $set: {
+                                        "data.$[].date.$[].data.$[elem].name": req.body.name,
+                                        "data.$[].date.$[].data.$[elem].url": req.body.url,
+                                        "data.$[].date.$[].data.$[elem].csv_url": req.body.csv_url,
+                                        "data.$[].date.$[].data.$[elem].pdf": r,
                                     },
-                                ],
-                                multi: true,
-                            }
-                        )
-                    );
-                });
+                                },
+                                {
+                                    arrayFilters: [
+                                        {
+                                            "elem._id": param2,
+                                        },
+                                    ],
+                                    multi: true,
+                                }
+                            )
+                        );
+                    });
+            } else {
+                return res.status(200).json(
+                    await DataEachYear.updateOne(
+                        { _id: param, "data.date._id": param3 },
+                        {
+                            $set: {
+                                "data.$[].date.$[].data.$[elem].name": req.body.name,
+                                "data.$[].date.$[].data.$[elem].url": req.body.url,
+                                "data.$[].date.$[].data.$[elem].csv_url": req.body.csv_url,
+                                "data.$[].date.$[].data.$[elem].pdf": "",
+                            },
+                        },
+                        {
+                            arrayFilters: [
+                                {
+                                    "elem._id": param2,
+                                },
+                            ],
+                            multi: true,
+                        }
+                    )
+                );
+            }
         } catch (error) {
             return res.status(500).json(error.message);
         }
@@ -205,38 +229,38 @@ module.exports = {
     CreateData: async function (req, res, next) {
         try {
             try {
+                const { firebaseUrl } = req.file ? req.file : "";
                 const { param, param2, param3 } = req.params;
                 const { name, url, csv_url } = req.body;
-                fetch("https://www.filestackapi.com/api/store/S3?key=AUvhS7551QwCvuwJ8LPpjz", {
-                    method: "POST",
-                    body: req.files.pdf.data,
-                })
-                    .then((r) => r.json())
-                    .then(async (r) => {
-                        return res.status(200).json(
-                            await DataEachYear.updateOne(
-                                { _id: param, "data.date._id": param3 },
-                                {
-                                    $push: {
-                                        "data.$.date.$[elem].data": {
-                                            name: name,
-                                            url: url,
-                                            csv_url: csv_url,
-                                            pdf: r,
-                                        },
-                                    },
+                const data = {
+                    name: name,
+                    url: url,
+                    csv_url: csv_url,
+                    pdf: firebaseUrl,
+                };
+                return res.status(200).json(
+                    await DataEachYear.updateOne(
+                        { _id: param, "data.date._id": param3 },
+                        {
+                            $push: {
+                                "data.$.date.$[elem].data": {
+                                    name: name,
+                                    url: url,
+                                    csv_url: csv_url,
+                                    pdf: firebaseUrl,
                                 },
+                            },
+                        },
+                        {
+                            arrayFilters: [
                                 {
-                                    arrayFilters: [
-                                        {
-                                            "elem._id": param3,
-                                        },
-                                    ],
-                                    multi: true,
-                                }
-                            )
-                        );
-                    });
+                                    "elem._id": param3,
+                                },
+                            ],
+                            multi: true,
+                        }
+                    )
+                );
             } catch (error) {
                 return res.status(500).json(error.message);
             }
