@@ -36,41 +36,112 @@ router.get("/api/FindDataEachYearByDate/:param1/:param2", FindDataEachYearByDate
 router.post("/api/CreateDataYear", CreateDataYear);
 router.post("/api/CreateDataName/:param", CreateDataName);
 router.post("/api/CreateDate/:param/:param2", CreateDate);
-router.post(
-    "/api/CreateData/:param/:param2/:param3",
-    upload.single("pdf"),
-    (req, res, next) => {
-        const folder = "file";
-        const fileName = `${folder}/${Date.now()}`;
-        const fileUpload = bucket.file(fileName);
-        const blobStream = fileUpload.createWriteStream({
-            metadata: {
-                contentType: req.file.mimetype,
-            },
-        });
-
-        blobStream.on("error", (err) => {
-            res.status(405).json(err);
-        });
-
-        blobStream.on("finish", async () => {
-            await fileUpload.makePublic();
-            req.file.firebaseUrl = `https://storage.googleapis.com/${BUCKET}/${fileName}`;
-            next();
-            // สร้าง path
-        });
-        blobStream.end(req.file.buffer);
-    },
-    CreateData
-);
-
-router.put("/api/UpdateData/:param/:param2/:param3", UpdateData);
 
 router.delete("/api/DeleteData/:param1/:param2/:param3/:id", DeleteData);
 router.delete("/api/DeleteDataDate/:param1/:id", DeleteDataDate);
 router.delete("/api/DeleteDataYear/:id", DeleteDataYear);
 router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);
 
+
+
+router.post(
+    "/api/CreateData/:param/:param2/:param3",
+    upload.fields([
+        {
+            name: "csv",
+            maxCount: 1,
+        },
+        {
+            name: "pdf",
+            maxCount: 1,
+        },
+    ]),
+    async (req, res, next) => {
+        const CreatefirebaseUrls = async (files) => {
+            for (const key of Object.keys(files)) {
+                for (const item of files[key]) {
+                    console.log("Creating write stream...");
+                    const folder = "file";
+                    const fileName = `${folder}/${Date.now()}`;
+                    const fileUpload = bucket.file(fileName);
+                    const blobStream = fileUpload.createWriteStream({
+                        metadata: {
+                            contentType: item.mimetype,
+                        },
+                    });
+
+                    await new Promise((resolve, reject) => {
+                        blobStream.on("finish", async () => {
+                            console.log("Upload finished");
+                            await fileUpload.makePublic();
+                            item.firebaseUrl = `https://storage.googleapis.com/${BUCKET}/${fileName}`;
+                            // สร้าง path
+                            resolve();
+                        });
+                        blobStream.on("error", (err) => {
+                            console.log("Upload failed with error: ", err);
+                            reject(err);
+                        });
+                        blobStream.end(item.buffer);
+                    });
+                }
+            }
+        };
+
+        await CreatefirebaseUrls(req.files);
+        next();
+    },
+    CreateData
+);
+
+router.put(
+    "/api/UpdateData/:param/:param2/:param3",
+    upload.fields([
+        {
+            name: "csv",
+            maxCount: 1,
+        },
+        {
+            name: "pdf",
+            maxCount: 1,
+        },
+    ]),
+    async (req, res, next) => {
+        const CreatefirebaseUrls = async (files) => {
+            for (const key of Object.keys(files)) {
+                for (const item of files[key]) {
+                    console.log("Creating write stream...");
+                    const folder = "file";
+                    const fileName = `${folder}/${Date.now()}`;
+                    const fileUpload = bucket.file(fileName);
+                    const blobStream = fileUpload.createWriteStream({
+                        metadata: {
+                            contentType: item.mimetype,
+                        },
+                    });
+
+                    await new Promise((resolve, reject) => {
+                        blobStream.on("finish", async () => {
+                            console.log("Upload finished");
+                            await fileUpload.makePublic();
+                            item.firebaseUrl = `https://storage.googleapis.com/${BUCKET}/${fileName}`;  // สร้าง path
+                            resolve();
+                        });
+                        blobStream.on("error", (err) => {
+                            console.log("Upload failed with error: ", err);
+                            reject(err);
+                        });
+                        blobStream.end(item.buffer);
+                    });
+                }
+            }
+        };
+
+        await CreatefirebaseUrls(req.files);
+        next();
+    },
+    UpdateData
+);
 /**
  * @swagger
  * components:

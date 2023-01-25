@@ -47,57 +47,109 @@ module.exports = {
     UpdateData: async (req, res, next) => {
         try {
             const { param, param2, param3 } = req.params;
-            if (Object.keys(req.body).length <= 3) {
-                fetch("https://www.filestackapi.com/api/store/S3?key=AUvhS7551QwCvuwJ8LPpjz", {
-                    method: "POST",
-                    body: req.files.pdf.data,
-                })
-                    .then((r) => r.json())
-                    .then(async (r) => {
-                        return res.status(200).json(
-                            await DataEachYear.updateOne(
-                                { _id: param, "data.date._id": param3 },
-                                {
-                                    $set: {
-                                        "data.$[].date.$[].data.$[elem].name": req.body.name,
-                                        "data.$[].date.$[].data.$[elem].url": req.body.url,
-                                        "data.$[].date.$[].data.$[elem].csv_url": req.body.csv_url,
-                                        "data.$[].date.$[].data.$[elem].pdf": r,
-                                    },
-                                },
-                                {
-                                    arrayFilters: [
-                                        {
-                                            "elem._id": param2,
-                                        },
-                                    ],
-                                    multi: true,
-                                }
-                            )
-                        );
-                    });
+            let csv = "";
+            let pdf = "";
+            if (req.files.csv) {
+                csv = req.files.csv[0].firebaseUrl;
             } else {
-                return res.status(200).json(
-                    await DataEachYear.updateOne(
-                        { _id: param, "data.date._id": param3 },
-                        {
-                            $set: {
-                                "data.$[].date.$[].data.$[elem].name": req.body.name,
-                                "data.$[].date.$[].data.$[elem].url": req.body.url,
-                                "data.$[].date.$[].data.$[elem].csv_url": req.body.csv_url,
-                                "data.$[].date.$[].data.$[elem].pdf": "",
-                            },
-                        },
-                        {
-                            arrayFilters: [
-                                {
-                                    "elem._id": param2,
+                csv = "";
+            }
+            if (req.files.pdf) {
+                pdf = req.files.pdf[0].firebaseUrl;
+            } else {
+                pdf = "";
+            }
+
+            switch (true) {
+                case pdf === "" && csv === "":
+                    return res.status(200).json(
+                        await DataEachYear.updateOne(
+                            { _id: param, "data.date._id": param3 },
+                            {
+                                $set: {
+                                    "data.$[].date.$[].data.$[elem].name": req.body.name,
+                                    "data.$[].date.$[].data.$[elem].url": req.body.url,
                                 },
-                            ],
-                            multi: true,
-                        }
-                    )
-                );
+                            },
+                            {
+                                arrayFilters: [
+                                    {
+                                        "elem._id": param2,
+                                    },
+                                ],
+                                multi: true,
+                            }
+                        )
+                    );
+                    break;
+                case pdf !== "" && csv !== "":
+                    return res.status(200).json(
+                        await DataEachYear.updateOne(
+                            { _id: param, "data.date._id": param3 },
+                            {
+                                $set: {
+                                    "data.$[].date.$[].data.$[elem].name": req.body.name,
+                                    "data.$[].date.$[].data.$[elem].url": req.body.url,
+                                    "data.$[].date.$[].data.$[elem].csv": csv,
+                                    "data.$[].date.$[].data.$[elem].pdf": pdf,
+                                },
+                            },
+                            {
+                                arrayFilters: [
+                                    {
+                                        "elem._id": param2,
+                                    },
+                                ],
+                                multi: true,
+                            }
+                        )
+                    );
+                    break;
+                case pdf !== "" && csv === "":
+                    return res.status(200).json(
+                        await DataEachYear.updateOne(
+                            { _id: param, "data.date._id": param3 },
+                            {
+                                $set: {
+                                    "data.$[].date.$[].data.$[elem].name": req.body.name,
+                                    "data.$[].date.$[].data.$[elem].url": req.body.url,
+                                    "data.$[].date.$[].data.$[elem].pdf": pdf,
+                                },
+                            },
+                            {
+                                arrayFilters: [
+                                    {
+                                        "elem._id": param2,
+                                    },
+                                ],
+                                multi: true,
+                            }
+                        )
+                    );
+                    // handle this case
+                    break;
+                case pdf === "" && csv !== "":
+                    return res.status(200).json(
+                        await DataEachYear.updateOne(
+                            { _id: param, "data.date._id": param3 },
+                            {
+                                $set: {
+                                    "data.$[].date.$[].data.$[elem].name": req.body.name,
+                                    "data.$[].date.$[].data.$[elem].url": req.body.url,
+                                    "data.$[].date.$[].data.$[elem].csv": csv,
+                                },
+                            },
+                            {
+                                arrayFilters: [
+                                    {
+                                        "elem._id": param2,
+                                    },
+                                ],
+                                multi: true,
+                            }
+                        )
+                    );
+                    break;
             }
         } catch (error) {
             return res.status(500).json(error.message);
@@ -229,15 +281,21 @@ module.exports = {
     CreateData: async function (req, res, next) {
         try {
             try {
-                const { firebaseUrl } = req.file ? req.file : "";
+                let csv = "";
+                let pdf = "";
+                if (req.files.csv) {
+                    csv = req.files.csv[0].firebaseUrl;
+                } else {
+                    csv = "";
+                }
+                if (req.files.pdf) {
+                    pdf = req.files.pdf[0].firebaseUrl;
+                } else {
+                    pdf = "";
+                }
+
                 const { param, param2, param3 } = req.params;
-                const { name, url, csv_url } = req.body;
-                const data = {
-                    name: name,
-                    url: url,
-                    csv_url: csv_url,
-                    pdf: firebaseUrl,
-                };
+                const { name, url } = req.body;
                 return res.status(200).json(
                     await DataEachYear.updateOne(
                         { _id: param, "data.date._id": param3 },
@@ -246,8 +304,8 @@ module.exports = {
                                 "data.$.date.$[elem].data": {
                                     name: name,
                                     url: url,
-                                    csv_url: csv_url,
-                                    pdf: firebaseUrl,
+                                    csv: csv,
+                                    pdf: pdf,
                                 },
                             },
                         },
