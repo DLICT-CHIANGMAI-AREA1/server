@@ -1,4 +1,5 @@
 const DataEachYear = require("../model/DataStudentEachYear");
+const admin = require("firebase-admin");
 
 module.exports = {
     /*-----------------------Find----------------------------*/
@@ -159,16 +160,90 @@ module.exports = {
     /*-----------------------Delete----------------------------*/
     DeleteData: async (req, res, next) => {
         try {
-            const { param1, id } = req.params;
-            return res.status(200).json(
-                await DataEachYear.updateOne(
-                    { _id: param1 },
-                    {
-                        $pull: { "data.$[].date.$[].data": { _id: id } },
-                    },
-                    { safe: true }
-                )
-            );
+            const { param1, param2, param3, id } = req.params;
+
+            const find = await DataEachYear.find({ _id: param1 });
+            const filteredData = find[0].data.filter((item) => item._id.toString() === param2);
+            const data = filteredData[0].date.filter((item) => item._id.toString() === param3);
+            const Results = data[0].data.find((item) => item._id.toString() === id);
+            const bucket = admin.storage().bucket();
+            if (!Results.csv && !Results.pdf) {
+                return res.status(200).json(
+                    await DataEachYear.updateOne(
+                        { _id: param1 },
+                        {
+                            $pull: { "data.$[].date.$[].data": { _id: id } },
+                        },
+                        { safe: true }
+                    )
+                );
+            } else if (Results.pdf === "") {
+                // ไม่มี pdf เเต่มี CSV
+                const filePath = Results.csv.split("/").slice(-2).join("/");
+                const csv = bucket.file(filePath);
+                csv.exists().then(async (exists) => {
+                    if (exists) {
+                        csv.delete();
+                        return res.status(200).json(
+                            await DataEachYear.updateOne(
+                                { _id: param1 },
+                                {
+                                    $pull: { "data.$[].date.$[].data": { _id: id } },
+                                },
+                                { safe: true }
+                            )
+                        );
+                    } else {
+                        console.log("File does not exist");
+                    }
+                });
+            } else if (Results.csv === "") {
+                // ไม่มี csv เเต่มี PDF
+                const filePath = Results.pdf.split("/").slice(-2).join("/");
+                const pdf = bucket.file(filePath);
+                pdf.exists().then(async (exists) => {
+                    if (exists) {
+                        console.log("PDF exists");
+                        pdf.delete();
+                        return res.status(200).json(
+                            await DataEachYear.updateOne(
+                                { _id: param1 },
+                                {
+                                    $pull: { "data.$[].date.$[].data": { _id: id } },
+                                },
+                                { safe: true }
+                            )
+                        );
+                    } else {
+                        console.log("File does not exist");
+                    }
+                });
+            } else {
+           
+                const csv = bucket.file(Results.csv.split("/").slice(-2).join("/"))
+                const pdf = bucket.file(Results.pdf.split("/").slice(-2).join("/"))
+                csv.exists().then(async (exists) => {
+                    if (exists) {
+                        csv.delete();
+                        pdf.exists().then(async (exists) => {
+                            if (exists) {
+                                pdf.delete();
+                                return res.status(200).json(
+                                    await DataEachYear.updateOne(
+                                        { _id: param1 },
+                                        {
+                                            $pull: { "data.$[].date.$[].data": { _id: id } },
+                                        },
+                                        { safe: true }
+                                    )
+                                );
+                            } else {
+                                console.log("FilePDF does not exist");
+                            }
+                        });
+                    }
+                });
+            }
         } catch (error) {
             return res.status(500).json(error.message);
         }

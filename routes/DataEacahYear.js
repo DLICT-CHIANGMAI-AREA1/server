@@ -2,7 +2,7 @@ const router = require("express").Router();
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 const admin = require("firebase-admin");
-
+const DataEachYear = require("../model/DataStudentEachYear");
 const {
     FindDataEachYear,
     FindDataEachYearById,
@@ -37,12 +37,11 @@ router.post("/api/CreateDataYear", CreateDataYear);
 router.post("/api/CreateDataName/:param", CreateDataName);
 router.post("/api/CreateDate/:param/:param2", CreateDate);
 
-router.delete("/api/DeleteData/:param1/:param2/:param3/:id", DeleteData);
 router.delete("/api/DeleteDataDate/:param1/:id", DeleteDataDate);
 router.delete("/api/DeleteDataYear/:id", DeleteDataYear);
 router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);
 
-
+router.delete("/api/DeleteData/:param1/:param2/:param3/:id", DeleteData);
 
 router.post(
     "/api/CreateData/:param/:param2/:param3",
@@ -124,7 +123,7 @@ router.put(
                         blobStream.on("finish", async () => {
                             console.log("Upload finished");
                             await fileUpload.makePublic();
-                            item.firebaseUrl = `https://storage.googleapis.com/${BUCKET}/${fileName}`;  // สร้าง path
+                            item.firebaseUrl = `https://storage.googleapis.com/${BUCKET}/${fileName}`; // สร้าง path
                             resolve();
                         });
                         blobStream.on("error", (err) => {
