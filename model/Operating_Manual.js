@@ -4,8 +4,6 @@ const Schema = mongoose.Schema
 
 const operating_manual = new Schema({
     url:String,
-    size:Number,
-    type:String,
     filename:String
 })
 
