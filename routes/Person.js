@@ -7,11 +7,102 @@ const {
     CreatePerson,
 } = require("../controller/peron.controller");
 
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
+
+const admin = require("firebase-admin");
+const serviceAccount = require("../config/chiangmaiarea1-server-key.json");
+const BUCKET = "chiangmaiarea1-server.appspot.com";
+const FirebaseApp = admin.initializeApp(
+    {
+        credential: admin.credential.cert(serviceAccount),
+        storageBucket: BUCKET,
+    },
+    "App2"
+);
+
+const storage = FirebaseApp.storage();
+const bucket = storage.bucket();
+
 router.get("/api/DataPerson", DataPerson);
 router.get("/api/DataPersonById/:id", DataPersonById);
 router.delete("/api/DeletePerson/:id", DeletePerson);
-router.post("/api/UpdatePerson/:id", UpdatePerson);
-router.post("/api/CreatePerson/", CreatePerson);
+router.post(
+    "/api/UpdatePerson/:id",
+    upload.single("Operating_Manual"),
+    async (req, res, next) => {
+        if (req.file) {
+            const CreatefirebaseUrls = async (file) => {
+                console.log("Creating write stream...");
+                const folder = "Perosn_OPM";
+                const fileName = `${folder}/${Date.now()}`;
+                const fileUpload = bucket.file(fileName);
+                const blobStream = fileUpload.createWriteStream({
+                    metadata: {
+                        contentType: file.mimetype,
+                    },
+                });
+
+                await new Promise((resolve, reject) => {
+                    blobStream.on("finish", async () => {
+                        console.log("Upload finished");
+                        await fileUpload.makePublic();
+                        file.firebaseUrl = `https://storage.googleapis.com/${BUCKET}/${fileName}`; // สร้าง path
+                        resolve();
+                    });
+                    blobStream.on("error", (err) => {
+                        console.log("Upload failed with error: ", err);
+                        reject(err);
+                    });
+                    blobStream.end(file.buffer);
+                });
+            };
+
+            await CreatefirebaseUrls(req.file);
+            next();
+        } else {
+            next();
+        }
+    },
+    UpdatePerson
+);
+router.post(
+    "/api/CreatePerson/",
+    upload.single("Operating_Manual"),
+    async (req, res, next) => {
+        if (req.file) {
+            const CreatefirebaseUrls = async (file) => {
+                console.log("Creating write stream...");
+                const folder = "Perosn_OPM";
+                const fileName = `${folder}/${Date.now()}`;
+                const fileUpload = bucket.file(fileName);
+                const blobStream = fileUpload.createWriteStream({
+                    metadata: {
+                        contentType: file.mimetype,
+                    },
+                });
+
+                await new Promise((resolve, reject) => {
+                    blobStream.on("finish", async () => {
+                        console.log("Upload finished");
+                        await fileUpload.makePublic();
+                        file.firebaseUrl = `https://storage.googleapis.com/${BUCKET}/${fileName}`; // สร้าง path
+                        resolve();
+                    });
+                    blobStream.on("error", (err) => {
+                        console.log("Upload failed with error: ", err);
+                        reject(err);
+                    });
+                    blobStream.end(file.buffer);
+                });
+            };
+
+            await CreatefirebaseUrls(req.file);
+        }
+        next();
+    },
+    CreatePerson
+);
 
 /**
  * @swagger
@@ -164,7 +255,6 @@ router.post("/api/CreatePerson/", CreatePerson);
  *       500:
  *         description: Some server error
  */
-
 
 /**
  * @swagger
