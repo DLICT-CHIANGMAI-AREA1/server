@@ -22,15 +22,19 @@ module.exports = {
             const bucket = admin.storage().bucket();
             const find = await Person.find({ _id: id });
             const filePath = find[0].Operating_Manual.split("/").slice(-2).join("/");
-            const file = bucket.file(filePath);
-            file.exists().then(async (exists) => {
-                if (exists) {
-                    file.delete();
-                    return res.status(200).json(await Person.findByIdAndDelete(id));
-                } else {
-                    console.log("File does not exist");
-                }
-            });
+            if (filePath) {
+                const file = bucket.file(filePath);
+                file.exists().then(async (exists) => {
+                    if (exists) {
+                        file.delete();
+                        return res.status(200).json(await Person.findByIdAndDelete(id));
+                    } else {
+                        return res.status(200).json(await Person.findByIdAndDelete(id));
+                    }
+                });
+            } else {
+                return res.status(200).json(await Person.findByIdAndDelete(id));
+            }
         } catch (error) {
             res.status(500).json(error);
         }
