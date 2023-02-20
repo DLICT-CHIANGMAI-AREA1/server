@@ -4,7 +4,6 @@ module.exports = {
     AddNews: async (req, res, next) => {
         try {
             let news = new News(req.body);
-
             await news.save(async (err, data) => {
                 if (err) return res.status(400).json("Bad Request");
                 return res.status(200).json(data);

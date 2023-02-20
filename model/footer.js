@@ -2,9 +2,9 @@ const mongoose = require("../config/database");
 const Schema = mongoose.Schema;
 
 const footer = new Schema({
-    text:String 
+    data: Array,
 });
 
-const Footer = mongoose.model(" footer", footer);
+const Footer = mongoose.model("other", footer);
 
 module.exports = Footer;
