@@ -67,7 +67,6 @@ module.exports = {
             return res.status(500).json(error.message);
         }
     },
-
     EditTitleBanner: async (req, res, next) => {
         try {
             const { Id } = req.params;
