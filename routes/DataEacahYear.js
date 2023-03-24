@@ -28,20 +28,20 @@ const FirebaseApp = admin.initializeApp({
 const storage = FirebaseApp.storage();
 const bucket = storage.bucket();
 
-router.get("/api/FindDataEachYear", FindDataEachYear);
-router.get("/api/FindDataEachYearById/:id", FindDataEachYearById);
+router.get("/api/FindDataEachYear", FindDataEachYear); // clear
+router.get("/api/FindDataEachYearById/:id", FindDataEachYearById);// clear
 router.get("/api/FindDataInGroupOfData/:param1/:param2", FindDataInGroupOfData);
 router.get("/api/FindDataEachYearByDate/:param1/:param2", FindDataEachYearByDate);
 
-router.post("/api/CreateDataYear", CreateDataYear);
-router.post("/api/CreateDataName/:param", CreateDataName);
-router.post("/api/CreateDate/:param/:param2", CreateDate);
+router.post("/api/CreateDataYear", CreateDataYear); // clear
+router.post("/api/CreateDataName/:param", CreateDataName); 
+router.post("/api/CreateDate/:param/:param2", CreateDate); // clear
 
 router.delete("/api/DeleteDataDate/:param1/:id", DeleteDataDate);
-router.delete("/api/DeleteDataYear/:id", DeleteDataYear);
-router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);
+router.delete("/api/DeleteDataYear/:id", DeleteDataYear); // clear
+router.delete("/api/DeleteDataRecordDate/:param1/:id", DeleteDataRecordDate);// clear
 
-router.delete("/api/DeleteData/:param1/:param2/:param3/:id", DeleteData);
+router.delete("/api/DeleteData/:param1/:param2/:param3/:id", DeleteData); 
 
 router.post(
     "/api/CreateData/:param/:param2/:param3",

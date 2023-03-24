@@ -8,7 +8,7 @@ const Service = require("./Service")
 const News = require("./News")
 const auth = require("./auth")
 const website = require("./website")
-
+const ga = require("./GA")
 router.use("/admin", opm);
 router.use("/admin", DataEachYear);
 router.use("/admin", Person);
@@ -18,7 +18,7 @@ router.use("/admin", Service);
 router.use("/admin", News);
 router.use("/admin", auth);
 router.use("/admin", website);
-
+router.use("/admin", ga);
 
 
 

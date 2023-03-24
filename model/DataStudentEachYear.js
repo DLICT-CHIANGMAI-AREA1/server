@@ -18,7 +18,7 @@ const Data_Each_Year = new Schema({
     ],
 });
 
-const DataEachYear = mongoose.model(" Data_Each_Year", Data_Each_Year);
+const DataEachYear = mongoose.model("Data_Each_Year", Data_Each_Year);
 
 const SaveDataStudent = async () => {
     if (0 == (await DataEachYear.find())) await DataEachYear.insertMany(mock);
