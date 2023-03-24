@@ -1,41 +1,84 @@
-// configs
-
+const { GoogleAuth } = require("google-auth-library");
+const { BetaAnalyticsDataClient } = require("@google-analytics/data");
 const express = require("express");
-const app = express();
-const swaggerUI = require("swagger-ui-express");
-const swaggerJsDoc = require("swagger-jsdoc");
-//////////////////////////////////////////////////////////////////////////////// swagger config
+const cors = require("cors");
 
-const options = {
-    definition: {
-        openapi: "3.0.0",
-        info: {
-            title: "DLICT API",
-            version: "1.0.0",
-            description: " Express DLICT API",
-        },
-        servers: [
+const app = express();
+app.use(cors())
+
+require("dotenv").config();
+
+async function getAnalyticsData() {
+    const auth = new GoogleAuth({
+        keyFile: "./key.json",
+        scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+    });
+    const analyticsDataClient = new BetaAnalyticsDataClient({
+        auth,
+    });
+    const [response] = await analyticsDataClient.runRealtimeReport({
+        property: "properties/358907276",
+        metrics: [
             {
-                url: "https://dlictchaingmaiarea1server.onrender.com",
+                name: "activeUsers",
             },
         ],
-    },
-    apis: ["./routes/*.js"],
-};
-const specs = swaggerJsDoc(options);
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+    });
 
-////////////////////////////////////////////////////////////////////////////////
-require("dotenv").config();
-const cors = require("cors");
-const router = require("./routes");
-const PORT = process.env.PORT || 7000;
+    const numberOfUsers = response.rows[0].metricValues[0].value;
+    return numberOfUsers;
+}
 
-app.use(cors());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
-app.use(router);
+async function getAnalyticsData2() {
+    const auth = new GoogleAuth({
+        keyFile: "./key.json",
+        scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+    });
+    const analyticsDataClient = new BetaAnalyticsDataClient({
+        auth,
+    });
+    const [response] = await analyticsDataClient.runReport({
+        property: "properties/358907276",
+        dateRanges: [
+            {
+                startDate: "7daysAgo",
+                endDate: "today",
+            },
+        ],
+        metrics: [
+            {
+                name: "newUsers",
+            },
+            {
+                name: "sessions",
+            },
+        ],
+    });
 
-const listener = app.listen(PORT, () => {
-    console.log("Server is running on port " + listener.address().port);
+    const numberOfUsers = response.rows[0].metricValues[0].value;
+    return numberOfUsers;
+}
+
+app.get("/UserOnline", async (req, res) => {
+    try {
+        const numberOfUsers = await getAnalyticsData();
+        res.send(`Number of users visiting right now: ${numberOfUsers}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error fetching data from Google Analytics");
+    }
+});
+
+app.get("/AllUserVisit", async (req, res) => {
+    try {
+        const numberOfUsers = await getAnalyticsData2();
+        res.send(`Number of users visiting all : ${numberOfUsers}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error fetching data from Google Analytics");
+    }
+});
+
+app.listen(3000, () => {
+    console.log("Server started on port 3000");
 });
